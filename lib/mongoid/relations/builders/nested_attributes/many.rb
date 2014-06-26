@@ -100,6 +100,9 @@ module Mongoid
               first = existing.first
               converted = first ? convert_id(first.class, id) : id
               doc = existing.find(converted)
+            end
+            
+            if doc
               if destroyable?(attrs)
                 destroy(parent, existing, doc)
               else
