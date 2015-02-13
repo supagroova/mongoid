@@ -3,6 +3,31 @@
 For instructions on upgrading to newer versions, visit
 [mongoid.org](http://mongoid.org/en/mongoid/docs/upgrading.html).
 
+## 4.0.2 - Not released
+
+### Resolved Issues
+
+* \#3888 raise UnknownAttributeError when 'set' is called on non existing field and Mongoid::Attributes::Dynamic is not included in model. (Shweta Kale)
+
+* \#3889 'set' will allow to set value of non existing field when Mongoid::Attributes::Dynamic is included in model. (Shweta Kale)
+
+## 4.0.1
+
+### Resolved Issues
+
+* \#3911 Fix relations named "parent". (nkriege)
+
+* \#3792/\#3881 Fix many internal calls to #_id instead of #id to avoid issues
+  when overloading #id (Gauthier Delacroix)
+
+* \#3847 Fix 'QueryCache#get_more' result, when collection has more documents than first query batch. (Angelica Korsun)
+
+* \#3684 Dont raise MissingAttributeError, when using a only() scope. (Arthur Neves)
+
+* \#3703 pluck method should not compact the values. (Arthur Neves)
+
+* \#3773 Use nanoseconds for cache_key timestamp instead of plain seconds. (Máximo Mussini)
+
 ## 4.0.0
 
 ### Major Changes (Backwards Incompatible)
@@ -138,7 +163,7 @@ For instructions on upgrading to newer versions, visit
 
 * \#3138 `update_attributes` can now be accessed simply by calling `update`.
 
-* \#3083 A new rake task: `rake mongoid:remove_undefined_indexes` has been added to
+* \#3083 A new rake task: `rake db:mongoid:remove_undefined_indexes` has been added to
   remove indexes from the database that are not explicitly defined in the models.
   (Aidan Feldman)
 

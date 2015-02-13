@@ -78,11 +78,11 @@ module Mongoid
     # @example Get the identity
     #   document.identity
     #
-    # @return [ Array ] An array containing [document.class, document.id]
+    # @return [ Array ] An array containing [document.class, document._id]
     #
     # @since 3.0.0
     def identity
-      [ self.class, self.id ]
+      [ self.class, self._id ]
     end
 
     # Instantiate a new +Document+, setting the Document's attributes if
@@ -199,7 +199,7 @@ module Mongoid
       end
 
       became = klass.new(clone_document)
-      became.id = id
+      became._id = _id
       became.instance_variable_set(:@changed_attributes, changed_attributes)
       became.instance_variable_set(:@errors, ActiveModel::Errors.new(became))
       became.errors.instance_variable_set(:@messages, errors.instance_variable_get(:@messages))
@@ -225,7 +225,7 @@ module Mongoid
     # plural model name.
     #
     # If new_record?     - will append /new
-    # If not             - will append /id-updated_at.to_s(:number)
+    # If not             - will append /id-updated_at.to_s(:nsec)
     # Without updated_at - will append /id
     #
     # This is usually called insode a cache() block
@@ -238,7 +238,7 @@ module Mongoid
     # @since 2.4.0
     def cache_key
       return "#{model_key}/new" if new_record?
-      return "#{model_key}/#{id}-#{updated_at.utc.to_s(:number)}" if do_or_do_not(:updated_at)
+      return "#{model_key}/#{id}-#{updated_at.utc.to_s(:nsec)}" if do_or_do_not(:updated_at)
       "#{model_key}/#{id}"
     end
 

@@ -248,6 +248,17 @@ describe Mongoid::Attributes do
     it "delegates to #id" do
       expect(person._id).to eq(person.id)
     end
+
+    context "when #id alias is overridden" do
+
+      let(:object) do
+        IdKey.new(key: 'foo')
+      end
+
+      it "delegates to another method" do
+        expect(object.id).to eq(object.key)
+      end
+    end
   end
 
   describe "#_id=" do
@@ -314,6 +325,19 @@ describe Mongoid::Attributes do
           expect(person.id).to eq(2)
         end
       end
+
+      context "when #id= alias is overridden" do
+
+        let(:object) do
+          IdKey.new(key: 'foo')
+        end
+
+        it "delegates to another method" do
+          object.id = 'bar'
+          expect(object.id).to eq('bar')
+        end
+      end
+
     end
 
     context "when using string ids" do
@@ -851,6 +875,18 @@ describe Mongoid::Attributes do
 
       it "return false" do
         expect(person.attribute_present?(:title)).to be false
+      end
+    end
+
+    context "when the attribute is not on only list" do
+
+      before { Person.create }
+      let(:person) do
+        Person.only(:id).first
+      end
+
+      it "return false" do
+        expect(person.attribute_present?(:foobar)).to be false
       end
     end
   end

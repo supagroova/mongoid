@@ -1371,6 +1371,77 @@ describe Mongoid::Criteria do
 
     context "when including a belongs to relation" do
 
+      context "when the criteria is from the root" do
+
+        let!(:person_two) do
+          Person.create(age: 2)
+        end
+
+        let!(:post_one) do
+          person.posts.create(title: "one")
+        end
+
+        let!(:post_two) do
+          person_two.posts.create(title: "two")
+        end
+
+        context "when calling first" do
+
+          let(:criteria) do
+            Post.includes(:person)
+          end
+
+          let!(:document) do
+            criteria.first
+          end
+
+          it "eager loads the first document" do
+            expect_query(0) do
+              expect(document.person).to eq(person)
+            end
+          end
+
+          it "does not eager load the last document" do
+            doc = criteria.last
+            expect_query(1) do
+              expect(doc.person).to eq(person_two)
+            end
+          end
+
+          it "returns the first document" do
+            expect(document).to eq(post_one)
+          end
+        end
+
+        context "when calling last" do
+
+          let!(:criteria) do
+            Post.includes(:person)
+          end
+
+          let!(:document) do
+            criteria.last
+          end
+
+          it "eager loads the last document" do
+            expect_query(0) do
+              expect(document.person).to eq(person_two)
+            end
+          end
+
+          it "does not eager load the first document" do
+            doc = criteria.first
+            expect_query(1) do
+              expect(doc.person).to eq(person)
+            end
+          end
+
+          it "returns the last document" do
+            expect(document).to eq(post_two)
+          end
+        end
+      end
+
       context "when the criteria is from an embedded relation" do
 
         let(:peep) do
@@ -1492,77 +1563,6 @@ describe Mongoid::Criteria do
 
           it "returns the documents" do
             expect(documents).to eq([ address_one, address_two ])
-          end
-        end
-      end
-
-      context "when the criteria is from the root" do
-
-        let!(:person_two) do
-          Person.create(age: 2)
-        end
-
-        let!(:post_one) do
-          person.posts.create(title: "one")
-        end
-
-        let!(:post_two) do
-          person_two.posts.create(title: "two")
-        end
-
-        context "when calling first" do
-
-          let(:criteria) do
-            Post.includes(:person)
-          end
-
-          let!(:document) do
-            criteria.first
-          end
-
-          it "eager loads the first document" do
-            expect_query(0) do
-              expect(document.person).to eq(person)
-            end
-          end
-
-          it "does not eager load the last document" do
-            doc = criteria.last
-            expect_query(1) do
-              expect(doc.person).to eq(person_two)
-            end
-          end
-
-          it "returns the first document" do
-            expect(document).to eq(post_one)
-          end
-        end
-
-        context "when calling last" do
-
-          let!(:criteria) do
-            Post.includes(:person)
-          end
-
-          let!(:document) do
-            criteria.last
-          end
-
-          it "eager loads the last document" do
-            expect_query(0) do
-              expect(document.person).to eq(person_two)
-            end
-          end
-
-          it "does not eager load the first document" do
-            doc = criteria.first
-            expect_query(1) do
-              expect(doc.person).to eq(person)
-            end
-          end
-
-          it "returns the last document" do
-            expect(document).to eq(post_two)
           end
         end
       end
@@ -2851,6 +2851,17 @@ describe Mongoid::Criteria do
       end
     end
 
+    context "when plucking existent and non-existent fields" do
+
+      let(:plucked) do
+        Band.all.pluck(:id, :fooz)
+      end
+
+      it "returns nil for the field that doesnt exist" do
+        expect(plucked).to eq([[depeche.id, nil], [tool.id, nil], [photek.id, nil] ])
+      end
+    end
+
     context "when plucking a field that doesnt exist" do
 
       context "when pluck one field" do
@@ -2859,8 +2870,8 @@ describe Mongoid::Criteria do
           Band.all.pluck(:foo)
         end
 
-        it "returns a empty array" do
-          expect(plucked).to eq([])
+        it "returns a array with nil values" do
+          expect(plucked).to eq([nil, nil, nil])
         end
       end
 
@@ -2870,8 +2881,8 @@ describe Mongoid::Criteria do
           Band.all.pluck(:foo, :bar)
         end
 
-        it "returns a empty array" do
-          expect(plucked).to eq([[], [], []])
+        it "returns a nil arrays" do
+          expect(plucked).to eq([[nil, nil], [nil, nil], [nil, nil]])
         end
       end
     end

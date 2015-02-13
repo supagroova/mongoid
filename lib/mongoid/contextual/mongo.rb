@@ -54,7 +54,7 @@ module Mongoid
       def count(document = false, &block)
         return super(&block) if block_given?
         if document.is_a?(Document)
-          return collection.find(criteria.and(_id: document.id).selector).count
+          return collection.find(criteria.and(_id: document._id).selector).count
         end
         return query.count(document) if document
         try_cache(:count) { query.count }
@@ -350,9 +350,9 @@ module Mongoid
           if normalized_select.size == 1
             doc[normalized_select.keys.first]
           else
-            normalized_select.keys.map { |n| doc[n] }.compact
+            normalized_select.keys.map { |n| doc[n] }
           end
-        end.compact
+        end
       end
 
       # Skips the provided number of documents.
